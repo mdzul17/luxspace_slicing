@@ -5,5 +5,10 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  fontFamily: {
+    sans: [
+      '"Open Sans"'
+    ]
+  }
 }
 

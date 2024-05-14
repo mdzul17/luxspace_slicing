@@ -7,11 +7,11 @@
 // You can also remove this file if you'd prefer not to use a
 // service worker, and the Workbox build step will be skipped.
 
-import { clientsClaim } from 'workbox-core';
+import { cacheNames, clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate } from 'workbox-strategies';
+import { NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
 
 clientsClaim();
 
@@ -60,6 +60,29 @@ registerRoute(
     ],
   })
 );
+
+registerRoute(({url}) => url.origin === 'https://fonts.googleapis.com' || url.origin === 'https://fonts.gstatic.com', new NetworkFirst({cacheName: 'fonts', plugins: [new ExpirationPlugin({
+  maxAgeSeconds: 60*60*24*356,
+  maxEntries: 30
+})]}))
+
+registerRoute(({url})=> url.origin.includes("qorebase.io"), new NetworkFirst({
+   cacheName: 'apidata',
+   plugins: {
+    maxAgeSeconds: 360,
+    maxEntries: 30
+  }
+}
+))
+
+registerRoute(({url}) => /\.(jpe?g|png)$/i.test(url.pathname), new StaleWhileRevalidate({
+  cacheName: 'apiimage',
+  plugins: [
+    new ExpirationPlugin({
+      maxEntries: 30
+    })
+  ]
+}))
 
 self.addEventListener('install', function(event) {
   console.log("SW Install");
